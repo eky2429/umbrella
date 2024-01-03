@@ -2,8 +2,8 @@ require "http"
 require "json"
 
 
-ENV.fetch("GMAPS_KEY")
-ENV.fetch("PIRATE_WEATHER_KEY")
+GMAPS_KEY = ENV.fetch("GMAPS_KEY")
+PIRATE_WEATHER_KEY = ENV.fetch("PIRATE_WEATHER_KEY")
 
 puts "========================================"
 puts "Will you need an umbrella today?"
@@ -11,19 +11,19 @@ puts "========================================"
 puts ""
 
 puts "Where are you?"
-#input = gets.chomp
-input = "Chicago"
+input = gets.chomp
+
 puts "Checking weather at #{input}..."
+google_maps_info = JSON.parse(HTTP.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + input + "&key=" + GMAPS_KEY)).fetch("results").at(0).fetch("geometry").fetch("location")
+latitude = google_maps_info.fetch("lat")
+longitude = google_maps_info.fetch("lng")
 
-puts GMAPS_KEY
-puts PIRATE_WEATHER_KEY
+pirate_weather_info = JSON.parse(HTTP.get("https://api.pirateweather.net/forecast/#{PIRATE_WEATHER_KEY}/#{latitude},#{longitude}"))
+current_temperature = pirate_weather_info.fetch("currently").fetch("temperature")
+puts "It is currently #{current_temperature}°F."
 
-#url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + input + "&key=" + GMAPS_KEY
-#google_maps_info = JSON.parse(HTTP.get(url)).fetch("results").fetch("currently").at(0).fetch("geometry").fetch("location")
-#latitude = google_maps_info.fetch("lat")
-#puts latitude
-#longitude = google_maps_info.fetch("lng")
-#puts longitude
-#pp google_maps_info
-
-#pirate_weather_info = JSON.parse(HTTP.get("https://api.pirateweather.net/forecast/#{PIRATE_WEATHER_KEY}/41.8887,-87.6355"))
+if (pirate_weather_info.fetch("hourly").fetch("data").at(1).fetch("precipType") != "rain")
+  puts "You probably won't need an umbrella."
+else
+  puts "You deifinitely need an umbrella."
+end
