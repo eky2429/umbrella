@@ -16,6 +16,7 @@ input = "Chicago"
 puts "Checking weather at #{input}..."
 
 puts GMAPS_KEY
+puts PIRATE_WEATHER_KEY
 
 #url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + input + "&key=" + GMAPS_KEY
 #google_maps_info = JSON.parse(HTTP.get(url)).fetch("results").fetch("currently").at(0).fetch("geometry").fetch("location")
