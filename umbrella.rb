@@ -22,8 +22,18 @@ pirate_weather_info = JSON.parse(HTTP.get("https://api.pirateweather.net/forecas
 current_temperature = pirate_weather_info.fetch("currently").fetch("temperature")
 puts "It is currently #{current_temperature}°F."
 
-if (pirate_weather_info.fetch("hourly").fetch("data").at(1).fetch("precipType") != "rain")
+hourly_data = pirate_weather_info.fetch("hourly").fetch("data")
+
+is_raining_next_hour = hourly_data[1]["precipType"] == "rain"
+if is_raining_next_hour == false
+  puts "Next hour: Clear"
   puts "You probably won't need an umbrella."
 else
-  puts "You deifinitely need an umbrella."
+  puts "Next hour: Rainy"
+  index = 0
+  hourly_data.each{ |hash|
+  puts "In #{index} hours, there is a #{hash["precipProbability"]}% chance of precipitation."
+  index += 1
+  puts "You might want to take an umbrella!"
+}
 end
