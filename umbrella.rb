@@ -1,5 +1,6 @@
 require "http"
 require "json"
+require "ascii_charts"
 
 
 GMAPS_KEY = ENV.fetch("GMAPS_KEY")
@@ -23,17 +24,28 @@ current_temperature = pirate_weather_info.fetch("currently").fetch("temperature"
 puts "It is currently #{current_temperature}°F."
 
 hourly_data = pirate_weather_info.fetch("hourly").fetch("data")
+mayRain = false
 
-is_raining_next_hour = hourly_data[1]["precipType"] == "rain"
-if is_raining_next_hour == false
-  puts "Next hour: Clear"
-  puts "You probably won't need an umbrella."
-else
-  puts "Next hour: Rainy"
-  index = 0
-  hourly_data.each{ |hash|
-  puts "In #{index} hours, there is a #{hash["precipProbability"]}% chance of precipitation."
+index = 0
+points = []
+hourly_data.each{ |hash|
+  if index > 12
+    break
+  end
+  chanceofPrecip = (hash["precipProbability"] * 100).round
+
+  if chanceofPrecip >= 10 && mayRain == false
+    mayRain = true
+  end
+
+  points[index] = [index,chanceofPrecip]
+  puts "In #{index} hours, there is a #{chanceofPrecip}% chance of precipitation."
   index += 1
-  puts "You might want to take an umbrella!"
 }
+puts AsciiCharts::Cartesian.new(points, :bar => true, :hide_zero => true).draw
+
+if mayRain == true
+  puts "You might want to take an umbrella!"
+else
+  puts "You probably won't need an umbrella."
 end
